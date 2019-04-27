@@ -1,44 +1,43 @@
 <template>
-  <v-container fluid grid-list-md>
-    <v-data-iterator
-      :items="timeTables"
-      :rows-per-page-items="rowsPerPageItems"
-      :pagination.sync="pagination"
-      content-tag="v-layout"
-      row
-      wrap
-    >
-      <template v-slot:item="props">
-        <v-flex
-          xs12
-          sm6
-          md4
-          lg3
-        >
-          <v-card>
-            <v-card-title><h4>{{ props.item.cinemaHallName }}</h4></v-card-title>
-            <v-divider></v-divider>
-            <v-list dense>
-              <v-list-tile>
-                <v-list-tile-content>Movie Time:</v-list-tile-content>
-                <v-list-tile-content class="align-end">{{ props.item.movieTime }}</v-list-tile-content>
-              </v-list-tile>
-              <v-list-tile>
-                <v-list-tile-content>Remain Sit:</v-list-tile-content>
-                <v-list-tile-content class="align-end">
-                  {{ props.item.remain }}
-                </v-list-tile-content>
-              </v-list-tile>
-              <v-list-tile>
-                <v-list-tile-content>Date:</v-list-tile-content>
-                <v-list-tile-content class="align-end">{{ props.item.targetDate }}</v-list-tile-content>
-              </v-list-tile>
-            </v-list>
-          </v-card>
-        </v-flex>
-      </template>
-    </v-data-iterator>
-  </v-container>
+  <div>
+    <div class="cqv-theaterElement">
+        <!-- 영화관리스트 -->
+        <div v-if="theaterList.length > 0" class="cqv-theaterPadding">
+          
+        </div>
+    </div>
+    <div class="cqv-element cqv-detailPadding" v-if="isShowTimeTable">
+      <div v-for="(item, index) in timeTables" v-bind:key="index">
+        <strong> {{ item.movieName }} </strong> <br/>
+
+        <strong> {{ item.cinemaHallName }} </strong> <br/>
+
+        <span v-if="item.remain === '매진'"> 
+          <del> 
+            <span class="cqv-canNotBook"> {{ item.movieTime }} </span> 
+          </del> <br/>
+          <del> 
+            <span class="cqv-canNotBook"> {{ item.remain }} </span>
+          </del>
+        </span>
+
+        <span v-else-if="item.remain === '마감'">
+          <del>
+            <span class="cqv-endMovie"> {{ item.movieTime }} </span> <br/>
+          </del>
+          <del>
+            <span class="cqv-endMovie"> {{ item.remain }} </span>
+          </del>
+        </span>
+
+        <span v-else>
+          <span class="cqv-avail"> {{ item.movieTime }} </span> <br/>
+          <strong class="cqv-avail"> {{ item.remain }} </strong>
+        </span>
+        <p/>
+      </div>
+    </div>
+  </div>
 
 </template>
 
@@ -48,36 +47,50 @@
   export default {
     data() {
       return {
+        theaterList: [],
         timeTables: [],
-        rowsPerPageItems: [4, 8, 12],
-        pagination: {
-          rowsPerPage: 4
-        },
+        isShowTimeTable: false,
       }
     },
     mounted() {
-      this.theaterList()
+      this.theaterTimeTable()
     },
     methods: {
       theaterList() {
+
+      },
+      theaterTimeTable() {
         const url = "http://localhost:3000/timeTables"
 
         axios.get(url)
           .then((res) => {
             this.timeTables = res.data
           })
-          // .catch((e) => {
-          // })
-      }, 
-      theaterTimeTable() {
-
-      }
+      } 
     }
   }
 </script>
 
 <style scoped>
+  .cqv-theaterElement{
+    background-color: lightgray
+  }
   .cqv-element {
     background-color: lightblue
+  }
+  .cqv-canNotBook {
+    color: sandybrown
+  }
+  .cqv-endMovie {
+    color: red
+  }
+  .cqv-avail {
+    color: blue
+  }
+  .cqv-theaterPadding {
+    padding: 5% 5% 5% 5%
+  }
+  .cqv-detailPadding {
+    padding: 10% 5% 5% 5%
   }
 </style>
